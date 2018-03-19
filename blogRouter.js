@@ -53,8 +53,6 @@ router.put('/:id', jsonParser, (req, res) => {
     console.error(message);
     return res.status(400).send(message);
   }
-  // Why is id params and the others are body? (related to the if above)
-  // params vs. body in general
   console.log(`Updating blog post \`${req.params.id}\``);
   const updatedItem = BlogPosts.update({
   	id: req.params.id,

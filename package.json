@@ -19,6 +19,8 @@
     "url": "https://github.com/jennifer/blog-api"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
     "mocha": "^5.0.4"
   }
 }
