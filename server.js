@@ -1,5 +1,6 @@
 
 const express = require('express');
+const mongoose = require('mongoose');
 const morgan = require('morgan');
 const app = express();
 const blogRouter = require('./blogRouter');
@@ -7,6 +8,11 @@ const blogRouter = require('./blogRouter');
 app.use(morgan('common'));
 app.use(express.static('public'));
 app.use('/blog-posts', blogRouter);
+
+mongoose.Promise = global.Promise;
+
+const { PORT, DATABASE_URL } = require('./config');
+const { blogPosts } = require('./models');
 
 /*
 app.listen(process.env.PORT || 8080, () => {
