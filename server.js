@@ -26,11 +26,10 @@ function StorageException(message) {
 app.get('/posts', (req, res) => {
   BlogPost
     .find()
-    .then(blogPosts => {
-      res.json({
-        blogPost: blogPost.map(
-          (blogPost) => blogPost.serialize())
-      });
+    .exec()
+    .then(posts => {
+      res.status(200).json(posts
+        .map(post => post.serialize()));
     })
     .catch(err => {
       console.error(err);
@@ -106,29 +105,37 @@ app.use('*', function (req, res) {
 
 let server;
 
-function runServer() {
-  const port = process.env.PORT || 8080;
+function runServer(databaseUrl=DATABASE_URL, port=PORT) {
   return new Promise((resolve, reject) => {
+    mongoose.connect(databaseUrl, err => {
+      if (err) {
+        return reject(err);
+      }
     server = app.listen(port, () => {
       console.log(`Your app is listening on port ${port}`);
-      resolve(server);
-    }).on('error', err => {
-      reject(err)
+      resolve();
+    })
+    .on('error', err => {
+      mongoose.disconnct();
+      reject(err);
     });
   });
+});
 }
 
 function closeServer() {
-  return new Promise((resolve, reject) => {
+  return mongoose.disconnect().then(() => {
+    return new Promise((resolve, reject) => {
     console.log('Closing server');
     server.close(err => {
       if (err) {
-        reject(err);
-        return;
+        return reject(err);
       }
       resolve();
     });
   });
+});
+  
 }
 
 if (require.main === module) {
