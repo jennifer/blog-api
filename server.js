@@ -1,19 +1,20 @@
+'use strict'
 
+const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const uuid = require('uuid');
 const app = express();
-const blogRouter = require('./blogRouter');
 
 app.use(morgan('common'));
+app.use(bodyParser.json());
 app.use(express.static('public'));
-app.use('/blog-posts', blogRouter);
 
 mongoose.Promise = global.Promise;
 
 const { PORT, DATABASE_URL } = require('./config');
-const { blogPosts } = require('./models');
+const { BlogPost } = require('./models');
 
 
 function StorageException(message) {
@@ -23,7 +24,7 @@ function StorageException(message) {
 
 
 app.get('/posts', (req, res) => {
-  blogPost
+  BlogPost
     .find()
     .then(blogPosts => {
       res.json({
@@ -38,7 +39,7 @@ app.get('/posts', (req, res) => {
 });
 
 app.get('/posts/:id', (req, res) => {
-  blogPost
+  BlogPost
     .findById(req.params.id)
     .then(blogPost => res.json(blogPost.serialize()))
     .catch(err => {
@@ -58,7 +59,7 @@ app.post('/posts', (req, res) => {
     }
   }
 
-  blogPost
+  BlogPost
     .create({
       title: req.body.title,
       content: req.body.content,
@@ -86,14 +87,14 @@ app.put('/posts/:id', (req, res) => {
       toUpdate[field] = req.body[field];
     }
   });
-  blogPost
+  BlogPost
     .findByIdAndUpdate(req.params.id, { $set: toUpdate })
     .then(blogPost => res.status(204).end())
     .catch(err => res.status(500).json({ message: 'Internal server error' }));
 });
 
 app.delete('/posts/:id', (req, res) => {
-  blogPost
+  BlogPost
     .findByIdAndRemove(req.params.id)
     .then(restaurant => res.status(204).end())
     .catch(err => res.status(500).json({ message: 'Internal server error' }));
